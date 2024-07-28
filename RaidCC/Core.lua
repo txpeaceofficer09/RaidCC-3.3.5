@@ -186,25 +186,6 @@ local function OnEvent(self, event, ...)
 					if cc[dstGUID] ~= nil and cc[dstGUID][spellID] ~= nil then
 						local rti = ""
 						if targets[dstGUID] ~= nil then
-							--[[
-							if targets[dstGUID] == 1 then
-								rti = "{star}"
-							elseif targets[dstGUID] == 2 then
-								rti = "{circle}"
-							elseif targets[dstGUID] == 2 then
-								rti = "{diamond}"
-							elseif targets[dstGUID] == 2 then
-								rti = "{triangle}"
-							elseif targets[dstGUID] == 2 then
-								rti = "{moon}"
-							elseif targets[dstGUID] == 2 then
-								rti = "{square}"
-							elseif targets[dstGUID] == 2 then
-								rti = "{cross}"
-							elseif targets[dstGUID] == 2 then
-								rti = "{skull}"
-							end
-							]]
 							rti = ("|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_%s:16:16|t"):format(targets[dstGUID])
 						end
 						for k,v in pairs(targets) do
