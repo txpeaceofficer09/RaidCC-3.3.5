@@ -1,0 +1,7 @@
+## Interface: 30300
+## Title: RaidCC
+## Notes: A tracker for raid crowd control.
+## Author: Velcrogloves
+## Version: 1.0.0
+## SavedVariablesPerChar: RaidCC_Config
+Core.lua
