@@ -188,9 +188,6 @@ local function OnEvent(self, event, ...)
 						if targets[dstGUID] ~= nil then
 							rti = ("|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_%s:16:16|t"):format(targets[dstGUID])
 						end
-						for k,v in pairs(targets) do
-							print(k, v)
-						end
 						DEFAULT_CHAT_FRAME:AddMessage(("%s %s's %s is up %s"):format(rti, cc[dstGUID][spellID].casterName, cc[dstGUID][spellID].spellName, rti), 1, 0.5, 0, 1)
 						cc[dstGUID][spellID] = nil
 					end
