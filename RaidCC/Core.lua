@@ -26,6 +26,7 @@ RaidCC_Config = {
 	["p"] = "RIGHT",
 	["x"] = 0,
 	["y"] = 0,
+	["lock"] = false,
 }
 
 f:SetWidth(barWidth)
@@ -256,8 +257,8 @@ local function SlashCmd(...)
 	end
 end
 
-SLASH_DUALBOXER1 = "/rcc"
-SLASH_DUALBOXER2 = "/raidcc"
+SLASH_RAIDCC1 = "/rcc"
+SLASH_RAIDCC2 = "/raidcc"
 SlashCmdList["RAIDCC"] = SlashCmd
 
 f:RegisterEvent("RAID_TARGET_UPDATE")
