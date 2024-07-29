@@ -22,6 +22,18 @@ spells[33786] = 6 -- Cyclone
 spells[26995] = 15 -- Soothe Animal
 spells[18658] = 40 -- Hibernate
 
+-- Priest
+spells[8122] = 8 -- Psychic Scream
+spells[9484] = 50 -- Shackle Undead
+
+-- Warrior
+
+-- Rogue
+
+-- Shaman
+
+-- Hunter
+
 RaidCC_Config = {
 	["p"] = "RIGHT",
 	["x"] = 0,
@@ -148,23 +160,15 @@ local function OnEvent(self, event, ...)
 		self:SetPoint(RaidCC_Config.p, UIParent, RaidCC_Config.p, RaidCC_Config.x, RaidCC_Config.y)
 
 		if RaidCC_Config.lock == true then
-			RaidCC_Config.lock = false
-			f:Show()
-			f:EnableMouse(true)
-			f:SetMovable(true)
+			self:EnableMouse(false)
+			self:SetMovable(false)
 		else
-			RaidCC_Config.lock = true
-			f:Hide()
-			f:EnableMouse(false)
-			f:SetMovable(false)
+			self:EnableMouse(true)
+			self:SetMovable(true)
 		end
-	end
-
-	if ( event == "RAID_TARGET_UPDATE" ) then
+	elseif ( event == "RAID_TARGET_UPDATE" ) then
 		UpdateTargets()
-	end
-
-	if event == "COMBAT_LOG_EVENT_UNFILTERED" then
+	elseif event == "COMBAT_LOG_EVENT_UNFILTERED" then
 		local timestamp, subevent, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, spellID, spellName = ...
 
 		if subevent == "UNIT_DIED" then
@@ -242,19 +246,23 @@ local function OnUpdate(self, elapsed)
 	end
 end
 
-local function SlashCmd(...)
-	--local cmd, params = string.split(" ", string.lower(...), 2)
+local function RaidCC_Toggle()
 	if RaidCC_Config.lock == true then
 		RaidCC_Config.lock = false
-		f:Show()
+		--f:Show()
 		f:EnableMouse(true)
 		f:SetMovable(true)
 	else
 		RaidCC_Config.lock = true
-		f:Hide()
+		--f:Hide()
 		f:EnableMouse(false)
 		f:SetMovable(false)
 	end
+end
+
+local function SlashCmd(...)
+	--local cmd, params = string.split(" ", string.lower(...), 2)
+	RaidCC_Toggle()
 end
 
 SLASH_RAIDCC1 = "/rcc"
@@ -263,6 +271,7 @@ SlashCmdList["RAIDCC"] = SlashCmd
 
 f:RegisterEvent("RAID_TARGET_UPDATE")
 f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+f:RegisterEvent("VARIABLES_LOADED")
 
 f:SetScript("OnEvent", OnEvent)
 f:SetScript("OnUpdate", OnUpdate)
