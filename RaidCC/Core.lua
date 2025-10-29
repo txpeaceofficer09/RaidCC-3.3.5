@@ -41,8 +41,9 @@ RaidCC_Config = {
 	["lock"] = false,
 }
 
-f:SetWidth(barWidth)
-f:SetHeight(barSize)
+--f:SetWidth(barWidth)
+--f:SetHeight(barSize)
+f:SetSize(barWidth, barSize)
 
 f:SetPoint(RaidCC_Config.p, UIParent, RaidCC_Config.p, RaidCC_Config.x, RaidCC_Config.y)
 
@@ -102,8 +103,9 @@ end
 local function CreateBar(i)
 	local bar = _G["RaidCCBar"..i] or CreateFrame("Frame", "RaidCCBar"..i, UIParent)
 
-	bar:SetWidth(barWidth)
-	bar:SetHeight(barSize)
+	--bar:SetWidth(barWidth)
+	--bar:SetHeight(barSize)
+	bar:SetSize(barWidth, barSize)
 
 	if i == 1 then
 		bar:SetPoint("TOP", f, "BOTTOM", 0, -2)
