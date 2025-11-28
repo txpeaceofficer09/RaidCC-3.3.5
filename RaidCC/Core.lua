@@ -7,32 +7,36 @@ local numBars = 0
 local barSize = 16
 local barWidth = 200
 
-local spells = {}
+local spells = {
+	--[[ DRUID ]]
+        33786, -- Cyclone
+        26989, -- Entangling Roots
+        27009, -- Nature's Grasp (Buff)
+        27010, -- Nature's Grasp (Debuff)
+        18658, -- Hibernate
+        26995, -- Soothe Animal
 
--- Mage
-spells[12826] = 50 -- Polymorph
+	--[[ HUNTER ]]
 
--- Warlock
-spells[6215] = 20 -- Fear
-spells[17928] = 8 -- Howl of Terror
-spells[17926] = 3 -- Death Coil
+	--[[ MAGE ]]
+	12826, -- Polymorph
 
--- Druid
-spells[33786] = 6 -- Cyclone
-spells[26995] = 15 -- Soothe Animal
-spells[18658] = 40 -- Hibernate
+	--[[ PALADIN ]]
 
--- Priest
-spells[8122] = 8 -- Psychic Scream
-spells[9484] = 50 -- Shackle Undead
+	--[[ PRIEST ]]
+	8122, -- Psychic Scream
+	9484, -- Shackle Undead
 
--- Warrior
+	--[[ ROGUE ]]
+	1776, -- Gouge
 
--- Rogue
+	--[[ WARLOCK ]]
+	6215, -- Fear
+	17928, -- Howl of Terror
+	17926, -- Death Coil
 
--- Shaman
-
--- Hunter
+	--[[ WARRIOR ]]
+}
 
 RaidCC_Config = {
 	["p"] = "RIGHT",
@@ -41,14 +45,11 @@ RaidCC_Config = {
 	["lock"] = false,
 }
 
---f:SetWidth(barWidth)
---f:SetHeight(barSize)
 f:SetSize(barWidth, barSize)
-
 f:SetPoint(RaidCC_Config.p, UIParent, RaidCC_Config.p, RaidCC_Config.x, RaidCC_Config.y)
 
-f:SetBackdrop( { bgFile = "Interface\\BUTTONS\\GRADBLUE", edgeFile = nil, tile = false, tileSize = f:GetWidth(), edgeSize = 0, insets = { left = 0, right = 0, top = 0, bottom = 0 } } )
-f:SetBackdropColor(1, 0.5, 0.5, 1)
+f:SetBackdrop( { bgFile = "Interface\\TargetingFrame\\UI-StatusBar", edgeFile = nil, tile = false, tileSize = f:GetWidth(), edgeSize = 0, insets = { left = 0, right = 0, top = 0, bottom = 0 } } )
+f:SetBackdropColor(1, 0.75, 0, 1)
 
 local t = f:CreateFontString(f:GetName().."Title", "OVERLAY", "NumberFont_Outline_Med")
 t:SetJustifyH("LEFT")
@@ -59,8 +60,23 @@ f:EnableMouse(true)
 f:RegisterForDrag("LeftButton")
 f:SetMovable(true)
 
+local function OnDragStart(self)
+	f:StartMoving()
+end
+
+local function OnDragStop(self)
+	f:StopMovingOrSizing()
+
+end
+
+--[[
 f:SetScript("OnDragStart", function()
 	f:StartMoving()
+
+	local point, relativeTo, relativePoint, xOfs, yOfs = f:GetPoint()
+	RaidCC_Config.p = point;
+	RaidCC_Config.x = xOfs;
+	RaidCC_Config.y = yOfs;
 end)
 
 f:SetScript("OnDragStop", function()
@@ -71,6 +87,67 @@ f:SetScript("OnDragStop", function()
 	RaidCC_Config.x = xOfs;
 	RaidCC_Config.y = yOfs;
 end)
+]]
+
+local units = {
+        "player",
+        "playerpet",
+        "target",
+        "targetpet",
+        "focus",
+        "focustarget",
+        "focuspet",
+}
+
+for i=1,40,1 do
+        if i <= 5 then
+                tinsert(units, "party"..i)
+                tinsert(units, "party"..i.."target")
+                tinsert(units, "party"..i.."pet")
+        end
+
+        tinsert(units, "raid"..i)
+        tinsert(units, "raid"..i.."target")
+        tinsert(units, "raid"..i.."pet")
+end
+
+local function GetUnitByGUID(guid)
+        for _, unit in ipairs(units) do
+                if UnitGUID(unit) and UnitGUID(unit) == guid then
+                        return unit
+                end
+        end
+
+        return nil
+end
+
+local function GetAuraInfo(unit, spellID)
+        local spellName = GetSpellInfo(spellID)
+
+	if unit ~= nil and spellID ~= nil then
+	        for i=1,40,1 do
+        	        local name, _, _, stacks, _, duration, expirationTime = UnitBuff(unit, i)
+                	if name ~= spellName then
+                        	name, _, _, stacks, _, duration, expirationTime = UnitDebuff(unit, i)
+	                end
+
+        	        if name == spellName then
+                	        if duration and expirationTime then
+                        	        local remaining = expirationTime - GetTime();
+                                	return duration, remaining, stacks
+	                        end
+        	        end
+		end
+        end
+
+        return nil, nil, nil
+end
+
+local function GetSpellTexture(spellID)
+        local _, _, texture = GetSpellInfo(spellID)
+
+        return texture
+end
 
 local function UpdateTargets()
 	if UnitExists("target") and GetRaidTargetIndex("target") ~= nil then
@@ -103,8 +180,6 @@ end
 local function CreateBar(i)
 	local bar = _G["RaidCCBar"..i] or CreateFrame("Frame", "RaidCCBar"..i, UIParent)
 
-	--bar:SetWidth(barWidth)
-	--bar:SetHeight(barSize)
 	bar:SetSize(barWidth, barSize)
 
 	if i == 1 then
@@ -115,8 +190,11 @@ local function CreateBar(i)
 
 	local txt = bar:CreateTexture(bar:GetName().."RaidIcon")
 	txt:SetPoint("TOPLEFT", bar, "TOPLEFT", 0, 0)
-	txt:SetHeight(barSize)
-	txt:SetWidth(barSize)
+	txt:SetSize(barSize, barSize)
+
+	local icon = bar:CreateTexture(bar:GetName().."SpellIcon")
+	icon:SetPoint("TOPLEFT", bar, "TOPLEFT", barSize, 0)
+	icon:SetSize(barSize, barSize)
 
 	local sb = CreateFrame("StatusBar", bar:GetName().."Status", bar)
         sb:SetMinMaxValues(0, 100)
@@ -126,8 +204,8 @@ local function CreateBar(i)
         sb:SetValue(0)
         sb:SetHeight(barSize)
 
-        sb:SetPoint("TOPLEFT", bar, "TOPLEFT", barSize, 0)
-        sb:SetPoint("BOtTOMRIGHT", bar, "BOTTOMRIGHt", 0, 0)
+        sb:SetPoint("TOPLEFT", bar, "TOPLEFT", barSize*2, 0)
+        sb:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", 0, 0)
 
         local t = sb:CreateFontString(bar:GetName().."Name", "OVERLAY", "NumberFont_Outline_Med")
         t:SetJustifyH("LEFT")
@@ -136,7 +214,6 @@ local function CreateBar(i)
         local t = sb:CreateFontString(bar:GetName().."TimeLeft", "OVERLAY", "NumberFont_Outline_Med")
         t:SetJustifyH("RIGHT")
         t:SetPoint("RIGHT", sb, "RIGHT", -2, 0)
-
 
 	numBars = numBars + 1
 
@@ -176,15 +253,23 @@ local function OnEvent(self, event, ...)
 		if subevent == "UNIT_DIED" then
 			cc[dstGUID] = nil
 			targets[dstGUID] = nil
-		elseif subevent == "SPELL_AURA_APPLIED" or subevent == "SPELL_AURA_REFRESH" then
+		elseif subevent == "SPELL_CAST_SUCCESS" or subevent == "SPELL_AURA_APPLIED" or subevent == "SPELL_AURA_REFRESH" or subevent == "SPELL_AURA_DOSE_APPLIED" then
 			if ( bit.band(srcFlags, COMBATLOG_OBJECT_AFFILIATION_MINE) > 0 or bit.band(srcFlags, COMBATLOG_OBJECT_AFFILIATION_PARTY) > 0 or bit.band(srcFlags, COMBATLOG_OBJECT_AFFILIATION_RAID) > 0 ) then
-				if spells[spellID] ~= nil then
+				local unit = GetUnitByGUID(dstGUID)
+				local duration, remaining = GetAuraInfo(unit, spellID)
+
+				if tContains(spells, spellID) and duration ~= nil and remaining ~= nil then
 					cc[dstGUID] = cc[dstGUID] or {}
 					cc[dstGUID][spellID] = cc[dstGUID][spellID] or {}
 					cc[dstGUID][spellID].casterName = srcName
 					cc[dstGUID][spellID].spellName = spellName
 					cc[dstGUID][spellID].startTime = GetTime()
-					cc[dstGUID][spellID].endTime = GetTime() + spells[spellID]
+					cc[dstGUID][spellID].duration = duration
+					cc[dstGUID][spellID].endTime = GetTime() + remaining
+				end
+
+				if RaidCC_Config.debug ~= nil and RaidCC_Config.debug ~= false then
+					print(subevent, spellID, spellName)
 				end
 			end
 		elseif subevent == "SPELL_AURA_REMOVED" or subevent == "SPELL_AURA_BROKEN" or subevent == "SPELL_AURA_BROKEN_SPELL" then
@@ -212,7 +297,7 @@ local function OnUpdate(self, elapsed)
 
 		for k,v in pairs(cc) do
 			for a,b in pairs(v) do
-				local duration = spells[a]
+				local duration = b.duration
 				local remain = b.endTime - GetTime()
 
 				local bar = CreateBar(i)
@@ -221,6 +306,7 @@ local function OnUpdate(self, elapsed)
 				_G[bar:GetName().."Status"]:SetMinMaxValues(0, duration)
 				_G[bar:GetName().."Status"]:SetValue(b.endTime - GetTime())
 				_G[bar:GetName().."RaidIcon"]:SetTexture("Interface\\TargetingFrame\\UI-RaidTargetingIcon_"..(targets[k] or 0))
+				_G[bar:GetName().."SpellIcon"]:SetTexture(GetSpellTexture(a))
 
 				if remain / duration > 0.7 then
 				        _G[bar:GetName().."Status"]:SetStatusBarColor(0, 1, 0)
@@ -231,8 +317,14 @@ local function OnUpdate(self, elapsed)
 				else
 				        _G[bar:GetName().."Status"]:SetStatusBarColor(1, 0, 0)
 				end
-				bar:Show()
-				i = i + 1
+
+				if remain > 0 then
+					bar:Show()
+					i = i + 1
+				else
+					cc[k][a] = nil
+					bar:Hide()
+				end
 			end
 		end
 
@@ -244,6 +336,7 @@ local function OnUpdate(self, elapsed)
 				end
 			end
 		end
+
 		self.timer = 0
 	end
 end
@@ -263,8 +356,19 @@ local function RaidCC_Toggle()
 end
 
 local function SlashCmd(...)
-	--local cmd, params = string.split(" ", string.lower(...), 2)
-	RaidCC_Toggle()
+	local cmd, params = string.split(" ", string.lower(...), 2)
+
+	if cmd == "toggle" then
+		RaidCC_Toggle()
+	elseif cmd == "debug" then
+		if RaidCC_Config == nil or RaidCC_Config.debug == false then
+			RaidCC_Config.debug = true
+			print("RaidCC debugging: ON")
+		else
+			RaidCC_Config.debug = false
+			print("RaidCC debugging: OFF")
+		end
+	end
 end
 
 SLASH_RAIDCC1 = "/rcc"
@@ -277,3 +381,5 @@ f:RegisterEvent("VARIABLES_LOADED")
 
 f:SetScript("OnEvent", OnEvent)
 f:SetScript("OnUpdate", OnUpdate)
+f:SetScript("OnDragStart", OnDragStart)
+f:SetScript("OnDragStop", OnDragStop)
