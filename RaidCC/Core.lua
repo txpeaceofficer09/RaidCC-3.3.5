@@ -6,15 +6,16 @@ local targets = {}
 local numBars = 0
 local barSize = 16
 local barWidth = 200
+local fontFamily = "Interface\\AddOns\\RaidCC\\font.ttf"
 
 local spells = {
 	--[[ DRUID ]]
-        33786, -- Cyclone
-        26989, -- Entangling Roots
-        27009, -- Nature's Grasp (Buff)
-        27010, -- Nature's Grasp (Debuff)
-        18658, -- Hibernate
-        26995, -- Soothe Animal
+	33786, -- Cyclone
+	26989, -- Entangling Roots
+	27009, -- Nature's Grasp (Buff)
+	27010, -- Nature's Grasp (Debuff)
+	18658, -- Hibernate
+	26995, -- Soothe Animal
 
 	--[[ HUNTER ]]
 
@@ -51,7 +52,9 @@ f:SetPoint(RaidCC_Config.p, UIParent, RaidCC_Config.p, RaidCC_Config.x, RaidCC_C
 f:SetBackdrop( { bgFile = "Interface\\TargetingFrame\\UI-StatusBar", edgeFile = nil, tile = false, tileSize = f:GetWidth(), edgeSize = 0, insets = { left = 0, right = 0, top = 0, bottom = 0 } } )
 f:SetBackdropColor(1, 0.75, 0, 1)
 
-local t = f:CreateFontString(f:GetName().."Title", "OVERLAY", "NumberFont_Outline_Med")
+--local t = f:CreateFontString(f:GetName().."Title", "OVERLAY", "NumberFont_Outline_Med")
+local t = f:CreateFontString(f:GetName().."Title", "OVERLAY")
+t:SetFont(fontFamily, 14, "OUTLINE")
 t:SetJustifyH("LEFT")
 t:SetPoint("LEFT", f, "LEFT", 2, 0)
 t:SetText("RaidCC")
@@ -207,11 +210,15 @@ local function CreateBar(i)
         sb:SetPoint("TOPLEFT", bar, "TOPLEFT", barSize*2, 0)
         sb:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", 0, 0)
 
-        local t = sb:CreateFontString(bar:GetName().."Name", "OVERLAY", "NumberFont_Outline_Med")
+        --local t = sb:CreateFontString(bar:GetName().."Name", "OVERLAY", "NumberFont_Outline_Med")
+        local t = sb:CreateFontString(bar:GetName().."Name", "OVERLAY")
+		t:SetFont(fontFamily, 12, "OUTLINE")
         t:SetJustifyH("LEFT")
         t:SetPoint("LEFT", sb, "LEFT", 2, 0)
 
-        local t = sb:CreateFontString(bar:GetName().."TimeLeft", "OVERLAY", "NumberFont_Outline_Med")
+        --local t = sb:CreateFontString(bar:GetName().."TimeLeft", "OVERLAY", "NumberFont_Outline_Med")
+        local t = sb:CreateFontString(bar:GetName().."TimeLeft", "OVERLAY")
+		t:SetFont(fontFamily, 12, "OUTLINE")
         t:SetJustifyH("RIGHT")
         t:SetPoint("RIGHT", sb, "RIGHT", -2, 0)
 
