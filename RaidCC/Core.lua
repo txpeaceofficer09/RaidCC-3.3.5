@@ -262,7 +262,8 @@ local function OnEvent(self, event, ...)
 			targets[dstGUID] = nil
 		elseif subevent == "SPELL_CAST_SUCCESS" or subevent == "SPELL_AURA_APPLIED" or subevent == "SPELL_AURA_REFRESH" or subevent == "SPELL_AURA_DOSE_APPLIED" then
 			if ( bit.band(srcFlags, COMBATLOG_OBJECT_AFFILIATION_MINE) > 0 or bit.band(srcFlags, COMBATLOG_OBJECT_AFFILIATION_PARTY) > 0 or bit.band(srcFlags, COMBATLOG_OBJECT_AFFILIATION_RAID) > 0 ) then
-				local unit = GetUnitByGUID(dstGUID)
+				--local unit = GetUnitByGUID(dstGUID)
+				local unit = UnitTokenFromGUID(dstGUID)
 				local duration, remaining = GetAuraInfo(unit, spellID)
 
 				if tContains(spells, spellID) and duration ~= nil and remaining ~= nil then
